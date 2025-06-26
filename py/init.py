@@ -38,6 +38,22 @@ def init_tables():
         )
     END
     """)
+        # 建立 mrt_carriage 表
+    cursor.execute("""
+    IF NOT EXISTS (
+        SELECT * FROM sysobjects WHERE name='mrt_carriage' AND xtype='U'
+    )
+    BEGIN
+        CREATE TABLE mrt_carriage (
+            line_id NVARCHAR(10),
+            station NVARCHAR(100),
+            carriage_number INT,
+            crowd_level INT,
+            [timestamp] DATETIME
+        )
+    END
+    """)
+
 
     # ...（下略）
 
@@ -55,48 +71,57 @@ line_codes = {
 }
 
 # ✅ pyodbc 資料庫連線
-def get_db_connection():
-    conn_str = (
-        f"DRIVER={{ODBC Driver 17 for SQL Server}};"
-        f"SERVER={os.getenv('DB_SERVER')};"
-        f"UID={os.getenv('DB_USER')};"
-        f"PWD={os.getenv('DB_PASSWORD')};"
-        f"DATABASE={os.getenv('DB_NAME')};"
-        f"TrustServerCertificate=yes;"
-    )
-    return pyodbc.connect(conn_str)
-
 def import_stream_data():
-    print("🚇 匯入人流量資料 mrt_stream...")
+    print("🚇 開始匯入人流量資料 mrt_stream...")
+
     base_dir = 'crawler/MRT_stream_data'
     conn = get_db_connection()
     cursor = conn.cursor()
 
+    # ✅ 清空舊資料（如不想清除可以註解掉）
+    cursor.execute("DELETE FROM mrt_stream")
+
+    insert_count = 0
+    skip_count = 0
+
     for file in os.listdir(base_dir):
         if file.endswith('.csv'):
-            with open(os.path.join(base_dir, file), encoding='utf-8') as f:
+            file_path = os.path.join(base_dir, file)
+            with open(file_path, encoding='utf-8') as f:
                 reader = csv.DictReader(f)
                 for row in reader:
                     try:
                         date = row['date'].strip()
-                        timestamp = row['timestamp'].strip()
+                        time_str = row['timestamp'].strip()
                         count = int(row['count'])
-                        # 你 csv 如果有其他欄位，這裡再調整
+
+                        # ✅ 組成完整的 datetime
+                        timestamp_str = f"{date} {time_str}"
+                        timestamp = datetime.strptime(timestamp_str, "%Y-%m-%d %H:%M:%S")
+
+                        # ✅ 插入資料
                         cursor.execute("""
                             INSERT INTO mrt_stream ([date], [timestamp], [count])
                             VALUES (?, ?, ?)
                         """, (date, timestamp, count))
+
+                        insert_count += 1
                     except Exception as e:
-                        print(f"⚠️ 跳過錯誤: {e}")
+                        print(f"⚠️ 跳過錯誤資料（{file}):{row}，錯誤原因：{e}")
+                        skip_count += 1
+
     conn.commit()
     conn.close()
-    print("✅ mrt_stream 資料匯入完成\n")
+
+    print(f"✅ 匯入完成，共成功 {insert_count} 筆，跳過 {skip_count} 筆錯誤資料。\n")
+
 
 def import_carriage_data():
     print("🚈 匯入車廂擁擠度資料 mrt_carriage...")
     base_dir = 'crawler/MRT_carriage_data'
     conn = get_db_connection()   # 這裡只呼叫一次
     cursor = conn.cursor()
+    
 
     for line_name, line_code in line_codes.items():
         line_dir = os.path.join(base_dir, line_name)
