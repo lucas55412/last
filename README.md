@@ -53,6 +53,18 @@
 
 ### 資料庫設計
 
+###用docker建立資料庫或是讓讓docker跑起來拿到資料庫的東西
+
+＃創建新資料夾：docker run -e "ACCEPT_EULA=Y" \
+  -e 'SA_PASSWORD=YourStrong!Passw0rd' \-p 1433:1433 
+  \ -v sqlserverdata:/var/opt/mssql \
+  --name sqlserver \
+  -d mcr.microsoft.com/mssql/server:2022-latest
+\*除非刪掉否則只執行一次*\
+
+＃重新啟動docker資料夾docker start sqlserver
+
+
 #### Collections (集合)
 
 1. **users** - 用戶資料
