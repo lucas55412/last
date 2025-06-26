@@ -71,6 +71,23 @@ BEGIN
 END
 """)
 
+# 建立 comments 表（如果不存在）
+cursor.execute("""
+IF NOT EXISTS (
+    SELECT * FROM sysobjects WHERE name='comments' AND xtype='U'
+)
+BEGIN
+    CREATE TABLE comments (
+        id INT PRIMARY KEY IDENTITY(1,1),
+        post_id INT NOT NULL,
+        user_id INT NOT NULL,
+        content NVARCHAR(MAX),
+        created_at DATETIME DEFAULT GETDATE()
+    )
+END
+""")
+
+
 # 可以加更多資料表建立...
 
 conn.commit()
