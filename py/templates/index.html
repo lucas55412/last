@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block title %}首頁{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1>Latest Posts</h1>
+        <a href="{{ url_for('create_post') }}" class="btn btn-primary">Create New Post</a>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+                <div class="alert alert-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+    {% if posts %}
+        {% for post in posts %}
+        <div class="card mb-3">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <a href="{{ url_for('view_post', post_id=post['id']) }}" class="text-decoration-none">
+                        {{ post['title'] }}
+                    </a>
+                </h5>
+                <p class="card-text">{{ post['content'][:200] }}{% if post['content']|length > 200 %}...{% endif %}</p>
+                <div class="d-flex justify-content-between align-items-center">
+                    <p class="card-text">
+                        <small class="text-muted">
+                            Posted on {{ post['created_at'].strftime('%Y-%m-%d %H:%M') if post['created_at'] }}
+                        </small>
+                    </p>
+                    <a href="{{ url_for('view_post', post_id=post['id']) }}" class="text-decoration-none">
+                        閱讀全文
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p>No posts yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

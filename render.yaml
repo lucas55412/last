@@ -1,0 +1,19 @@
+services:
+  - type: web
+    name: mrt-visualization
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn wsgi:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.9.0
+      - key: MONGODB_URI
+        value: mongodb+srv://william:Aa22303248@cluster0.mpwsv.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0
+      - key: SECRET_KEY
+        value: b4fcc977cfcc1f1befbee58aecac6b5d3f710e09626bec8d02a3e90ad5579844
+      - key: FLASK_DEBUG
+        value: false
+    plan: free
+    region: singapore
+    healthCheckPath: /
+    autoDeploy: true 

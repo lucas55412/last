@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<!-- 設定網頁語言為繁體中文 -->
+<html lang="zh-TW">
+<head>
+    <!-- 設定字符編碼為 UTF-8 -->
+    <meta charset="UTF-8">
+    <!-- 設定響應式視窗 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 動態設定頁面標題，由子模板提供標題內容 -->
+    <title>{% block title %}{% endblock %} - My Flask Website</title>
+    <!-- 連結到 CSS 樣式表，使用 Flask 的 url_for 函數動態生成 URL -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- 引入 Bootstrap 5.1.3 的 CSS 框架，用於頁面樣式和響應式設計 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- 導航欄區域：使用 Bootstrap 的 navbar 組件 -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <!-- 網站品牌/Logo -->
+            <a class="navbar-brand" href="{{ url_for('index') }}">Flask Blog</a>
+            <!-- 響應式漢堡選單按鈕，在小螢幕時顯示 -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <!-- 導航欄內容，包含所有導航連結 -->
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <!-- 左側導航選項 -->
+                <ul class="navbar-nav me-auto">
+                    <!-- 首頁連結 -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('index') }}">首頁</a>
+                    </li>
+                    <!-- 關於頁面連結 -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('about') }}">關於</a>
+                    </li>
+                    <!-- 添加捷運資訊連結 -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('mrt_dashboard') }}">捷運資訊</a>
+                    </li>
+                    <!-- 條件渲染：只有登入用戶才能看到發布文章選項 -->
+                    {% if 'user_id' in session %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('create_post') }}">發布文章</a>
+                    </li>
+                    {% endif %}
+                </ul>
+                <!-- 右側導航選項：用戶相關功能 -->
+                <ul class="navbar-nav">
+                    <!-- 條件渲染：根據用戶登入狀態顯示不同選項 -->
+                    {% if 'user_id' in session %}
+                    <!-- 已登入用戶可見：個人頁面連結 -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('user_profile', username=session['username']) }}">
+                            {{ session['username'] }}的個人頁面
+                        </a>
+                    </li>
+                    <!-- 登出選項 -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">登出</a>
+                    </li>
+                    {% else %}
+                    <!-- 未登入用戶可見：登入和註冊選項 -->
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('login') }}">登入</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('register') }}">註冊</a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+    
+    <!-- 主要內容區域：使用 Jinja2 模板繼承機制，由子模板提供具體內容 -->
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+
+    <!-- 頁尾區域：顯示版權信息 -->
+    <footer class="small-footer">
+        <small>&copy; 2025 My Flask Website</small>
+    </footer>
+
+    <!-- 引入 Bootstrap 5.1.3 的 JavaScript 套件，包含所有 Bootstrap 功能 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

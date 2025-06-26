@@ -1,0 +1,60 @@
+<!-- 繼承基礎模板 base.html -->
+{% extends "base.html" %}
+
+<!-- 定義主要內容區塊 -->
+{% block content %}
+<!-- 使用 Bootstrap 容器，上方邊距為 5 個單位 -->
+<div class="container mt-5">
+    <!-- 使用 Bootstrap 網格系統，創建置中的行 -->
+    <div class="row justify-content-center">
+        <!-- 使用 6 列寬度的中型設備列（col-md-6），在小螢幕上會自動調整 -->
+        <div class="col-md-6">
+            <!-- 使用 Bootstrap 卡片元件來包裝登入表單 -->
+            <div class="card">
+                <!-- 卡片標題區域 -->
+                <div class="card-header">
+                    <h2 class="text-center">登入</h2>
+                </div>
+                <!-- 卡片主體區域 -->
+                <div class="card-body">
+                    <!-- 處理並顯示 Flash 消息（如登入失敗提示） -->
+                    {% with messages = get_flashed_messages(with_categories=true) %}
+                        {% if messages %}
+                            {% for category, message in messages %}
+                                <!-- 根據消息類型（success/danger/warning）顯示不同樣式的提示框 -->
+                                <div class="alert alert-{{ category }}">{{ message }}</div>
+                            {% endfor %}
+                        {% endif %}
+                    {% endwith %}
+                    
+                    <!-- 登入表單：使用 POST 方法提交數據 -->
+                    <form method="POST">
+                        <!-- 用戶名輸入欄位組 -->
+                        <div class="mb-3">
+                            <label for="username" class="form-label">用戶名</label>
+                            <!-- required 屬性確保用戶必須填寫此欄位 -->
+                            <input type="text" class="form-control" id="username" name="username" required>
+                        </div>
+                        <!-- 密碼輸入欄位組 -->
+                        <div class="mb-3">
+                            <label for="password" class="form-label">密碼</label>
+                            <!-- type="password" 確保密碼輸入時顯示為點點 -->
+                            <input type="password" class="form-control" id="password" name="password" required>
+                        </div>
+                        <!-- 提交按鈕區域：使用 Bootstrap 的網格間隔系統 -->
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">登入</button>
+                        </div>
+                    </form>
+                    
+                    <!-- 註冊連結區域 -->
+                    <div class="text-center mt-3">
+                        <!-- 使用 url_for 生成註冊頁面的連結 -->
+                        <p>還沒有帳號？ <a href="{{ url_for('register') }}">立即註冊</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

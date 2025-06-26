@@ -1,0 +1,60 @@
+<!-- 繼承基礎模板 base.html -->
+{% extends "base.html" %}
+
+<!-- 定義主要內容區塊 -->
+{% block content %}
+<!-- 使用 Bootstrap 容器，設置上方邊距為 4 個單位 -->
+<div class="container mt-4">
+    <!-- 使用 Bootstrap 網格系統建立兩欄式佈局 -->
+    <div class="row">
+        <!-- 左側欄位：用戶資料卡片（佔據 4/12 寬度） -->
+        <div class="col-md-4">
+            <!-- 使用 Bootstrap 卡片元件顯示用戶基本資料 -->
+            <div class="card">
+                <div class="card-body">
+                    <!-- 顯示用戶名稱 -->
+                    <h5 class="card-title">{{ user.username }}</h5>
+                    <!-- 顯示用戶電子郵件 -->
+                    <p class="card-text">{{ user.email }}</p>
+                    <!-- 顯示用戶註冊日期，使用 strftime 格式化日期 -->
+                    <p class="card-text">
+                        <small class="text-muted">Member since {{ user.created_at.strftime('%Y-%m-%d') }}</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+        <!-- 右側欄位：用戶的文章列表（佔據 8/12 寬度） -->
+        <div class="col-md-8">
+            <!-- 文章列表標題 -->
+            <h2>Posts by {{ user.username }}</h2>
+            <!-- 條件渲染：檢查用戶是否有發布的文章 -->
+            {% if posts %}
+                <!-- 遍歷並顯示所有文章 -->
+                {% for post in posts %}
+                <!-- 使用 Bootstrap 卡片元件顯示每篇文章，設置下方邊距 -->
+                <div class="card mb-3">
+                    <div class="card-body">
+                        <!-- 文章標題 -->
+                        <h5 class="card-title">{{ post.title }}</h5>
+                        <!-- 文章內容 -->
+                        <p class="card-text">{{ post.content }}</p>
+                        <!-- 文章發布時間，使用 strftime 格式化日期時間 -->
+                        <p class="card-text">
+                            {% if user.created_at %}
+                            <small class="text-muted">Member since {{ user.created_at.strftime('%Y-%m-%d') }}</small>
+                          {% else %}
+                            <small class="text-muted">加入時間不詳</small>
+                          {% endif %}
+                          
+                        </p>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <!-- 當用戶沒有發布任何文章時顯示的提示信息 -->
+                <p>No posts yet.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,111 @@
+/* 基本樣式設定 */
+body {
+    /* 設定字體族群 */
+    font-family: Arial, sans-serif;
+    /* 移除預設邊距 */
+    margin: 0;
+    padding: 0;
+    /* 設定行高 */
+    line-height: 1.6;
+}
+
+/* 導航欄樣式 */
+nav {
+    /* 設定背景顏色 */
+    background-color: #333;
+    /* 設定內部間距 */
+    padding: 1rem;
+}
+
+/* 導航列表樣式 */
+nav ul {
+    /* 移除列表符號 */
+    list-style-type: none;
+    /* 移除預設邊距 */
+    margin: 0;
+    padding: 0;
+    /* 使用 flex 布局 */
+    display: flex;
+    /* 設定項目間距 */
+    gap: 1rem;
+}
+
+/* 導航連結樣式 */
+nav a {
+    /* 設定文字顏色 */
+    color: white;
+    /* 移除文字裝飾 */
+    text-decoration: none;
+}
+
+/* 導航連結懸停效果 */
+nav a:hover {
+    /* 懸停時的文字顏色 */
+    color: #ddd;
+}
+
+/* 主要內容區域樣式 */
+.container {
+    /* 設定最大寬度 */
+    max-width: 1200px;
+    /* 水平置中 */
+    margin: 0 auto;
+    /* 設定內部間距 */
+    padding: 2rem;
+}
+
+/* 頁尾樣式 */
+.small-footer {
+    /* 設定背景顏色 */
+    background-color: #333;
+    /* 設定文字顏色 */
+    color: white;
+    /* 文字置中 */
+    text-align: center;
+    /* 設定內部間距 */
+    padding: 0.5rem;
+    /* 固定在頁面底部 */
+    position: fixed;
+    bottom: 0;
+    /* 設定寬度為全寬 */
+    width: 100%;
+    /* 設定字體大小 */
+    font-size: 0.8rem;
+}
+
+/* 文章列表樣式 */
+.posts {
+    /* 設定文章間距 */
+    margin-top: 2rem;
+}
+
+/* 單篇文章樣式 */
+.post {
+    /* 設定文章邊框和間距 */
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+
+/* 文章標題樣式 */
+.post h2 {
+    /* 設定標題大小和顏色 */
+    font-size: 1.5rem;
+    color: #333;
+    margin-top: 0;
+}
+
+/* 文章元資訊樣式 */
+.post .meta {
+    /* 設定作者和日期資訊的樣式 */
+    color: #666;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+/* 文章內容樣式 */
+.post .content {
+    /* 設定文章內容的行高 */
+    line-height: 1.6;
+} 

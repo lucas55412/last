@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+
+{% block title %}捷運資訊{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1 class="mb-4">台北捷運資訊</h1>
+    
+    <!-- 人流量圖表 -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="card-title h5 mb-0">捷運總人流量</h2>
+                <div id="streamDate" class="text-muted"></div>
+            </div>
+        </div>
+        <div class="card-body">
+            <canvas id="streamChart"></canvas>
+        </div>
+    </div>
+
+    <!-- 車廂擁擠度圖表 -->
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="card-title h5 mb-0">車廂擁擠度</h2>
+                <select class="form-select" style="width: auto;" id="lineSelect">
+                    <option value="BL">板南線</option>
+                    <option value="R">淡水信義線</option>
+                    <option value="G">松山新店線</option>
+                    <option value="O">中和新蘆線</option>
+                    <option value="BR">文湖線</option>
+                </select>
+            </div>
+        </div>
+        <div class="card-body">
+            <canvas id="carriageChart"></canvas>
+        </div>
+    </div>
+</div>
+<!-- 1. Luxon：Chart.js v4 的時間處理函式庫 -->
+
+
+<!-- 引入 Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+// 初始化圖表
+let streamChart = null;
+let carriageChart = null;
+
+// 更新人流量圖表
+function updateStreamChart() {
+    fetch('/api/mrt/stream')
+        .then(response => response.json())
+        .then(data => {
+            if (data.length === 0) {
+                console.warn('No stream data available');
+                return;
+            }
+
+            // 更新日期顯示
+            const firstRecord = data[0];
+            const dateStr = `${firstRecord.date} (${firstRecord.weekday})`;
+            document.getElementById('streamDate').textContent = dateStr;
+
+            const labels = data.map(d => d.timestamp);
+            const counts = data.map(d => d.count);
+
+            // 計算合適的Y軸範圍
+            const maxCount = Math.max(...counts);
+            const yAxisMax = Math.ceil(maxCount / 50000) * 50000;
+
+            if (streamChart) {
+                streamChart.destroy();
+            }
+
+            streamChart = new Chart(document.getElementById('streamChart'), {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '人流量',
+                        data: counts,
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                        tension: 0.1,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        label += new Intl.NumberFormat('zh-TW').format(context.parsed.y) + ' 人';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: yAxisMax,
+                            ticks: {
+                                callback: function(value) {
+                                    return new Intl.NumberFormat('zh-TW').format(value);
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching stream data:', error);
+        });
+}
+
+// 更新車廂擁擠度圖表
+function updateCarriageChart(line) {
+    fetch(`/api/mrt/carriage/${line}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.length === 0) {
+                console.warn('No carriage data available for line:', line);
+                return;
+            }
+
+            const labels = data.map(d => d.station_name);
+            
+            // 準備六節車廂的資料
+            const toTerminalDatasets = [];
+            const toStartDatasets = [];
+            
+            // 為每節車廂創建一個資料集
+            for (let i = 0; i < 6; i++) {
+                toTerminalDatasets.push({
+                    label: `第${i + 1}節車廂（往終點站）`,
+                    data: data.map(d => d.to_terminal ? d.to_terminal[i] || 0 : 0),
+                    backgroundColor: `rgba(255, ${99 + i * 20}, 132, 0.5)`,
+                    borderColor: `rgb(255, ${99 + i * 20}, 132)`,
+                    borderWidth: 1,
+                    stack: 'terminal'
+                });
+                
+                toStartDatasets.push({
+                    label: `第${i + 1}節車廂（往起點站）`,
+                    data: data.map(d => d.to_start ? d.to_start[i] || 0 : 0),
+                    backgroundColor: `rgba(54, ${162 + i * 15}, 235, 0.5)`,
+                    borderColor: `rgb(54, ${162 + i * 15}, 235)`,
+                    borderWidth: 1,
+                    stack: 'start'
+                });
+            }
+
+            if (carriageChart) {
+                carriageChart.destroy();
+            }
+
+            carriageChart = new Chart(document.getElementById('carriageChart'), {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [...toTerminalDatasets, ...toStartDatasets]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        const level = context.parsed.y;
+                                        let status = '';
+                                        if (level <= 33.33) {
+                                            status = '舒適';
+                                        } else if (level <= 66.67) {
+                                            status = '稍擁擠';
+                                        } else {
+                                            status = '擁擠';
+                                        }
+                                        label += `${status} (${level.toFixed(1)}%)`;
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: {
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching carriage data:', error);
+        });
+}
+
+// 監聽路線選擇變更
+document.getElementById('lineSelect').addEventListener('change', function() {
+    updateCarriageChart(this.value);
+});
+
+// 初始載入
+document.addEventListener('DOMContentLoaded', function() {
+    // 設定圖表容器的高度
+    document.getElementById('streamChart').parentElement.style.height = '400px';
+    document.getElementById('carriageChart').parentElement.style.height = '400px';
+    
+    updateStreamChart();
+    updateCarriageChart('BL');
+
+    // 每分鐘更新一次資料
+    setInterval(() => {
+        updateStreamChart();
+        updateCarriageChart(document.getElementById('lineSelect').value);
+    }, 60000);
+});
+</script>
+{% endblock %} 
