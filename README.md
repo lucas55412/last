@@ -1,33 +1,16 @@
 # Flask 部落格與捷運資訊系統
 ## 期末專題報告
 
-### 專案概述
+### 動機
 
-本專案是一個整合型 Web 應用程式，結合了社交部落格功能與台北捷運即時資訊視覺化系統。透過 Flask 框架與 MongoDB 資料庫，提供用戶完整的社交互動平台，同時展示台北捷運系統的營運數據，包括車廂擁擠度和人流統計資訊。
+我希望透過整合社交平台與台北捷運即時資訊的網站開發，實作一個具備資料互動與視覺化功能的全端系統，強化自己在後端資料處理、前端顯示與 API 整合等能力。
+且因為每天上學通勤工具是捷運，所以希望透過他重並是覺話可以更熟知離、尖峰時段
 
-### 技術架構
 
-#### 後端技術
-- **框架**: Flask 2.0.1 (Python Web Framework)
-- **資料庫**: MongoDB Atlas (雲端 NoSQL 資料庫)
-- **資料庫驅動**: PyMongo 4.3.3
-- **部署**: Render (雲端平台)
-- **Web 服務器**: Gunicorn 20.1.0
-
-#### 前端技術
-- **樣式框架**: Bootstrap 5
-- **JavaScript**: 原生 JavaScript + Chart.js (資料視覺化)
-- **模板引擎**: Jinja2 (Flask 內建)
-
-#### 開發工具
-- **版本控制**: Git
-- **依賴管理**: pip + requirements.txt
-- **環境配置**: python-dotenv
-
-### 核心功能
+### 核心功能和成果展示
 
 #### 1. 用戶管理系統
-- **用戶註冊與登入**: 安全的密碼雜湊存儲
+- **用戶註冊與登入**
 - **會話管理**: Flask-Session 實現用戶狀態管理
 - **個人資料頁面**: 顯示用戶發表的所有文章
 
@@ -45,21 +28,18 @@
 
 ```
 ├── app.py                 # 主應用程式檔案
-├── models.py             # 資料模型定義
-├── wsgi.py               # WSGI 應用程式入口點
-├── requirements.txt      # Python 依賴套件
-├── render.yaml          # 部署配置檔案
-├── templates/           # HTML 模板目錄
-│   ├── base.html        # 基礎模板
-│   ├── index.html       # 首頁模板
-│   ├── login.html       # 登入頁面
-│   ├── register.html    # 註冊頁面
-│   ├── create_post.html # 發文頁面
-│   ├── view_post.html   # 文章詳情頁面
-│   └── mrt_dashboard.html # 捷運資訊儀表板
-├── static/              # 靜態資源目錄
-│   ├── css/            # 樣式檔案
-│   └── js/             # JavaScript 檔案
+├── init_yeeeeeeeeee.py、init.py ＃新增資料庫表格（只需跑一次） 
+├── 1.txt.                       ＃讓後端程式可以透過帳號密碼，在他的後端連接資料庫
+├── templates/           # HTML 模板目錄 
+│   ├── base.html        # 基礎模板 
+│   ├── index.html       # 首頁模板 
+│   ├── login.html       # 登入頁面 
+│   ├── register.html    # 註冊頁面 
+│   ├── create_post.html # 發文頁面 
+│   ├── view_post.html   # 文章詳情頁面 
+│   └── mrt_dashboard.html # 捷運資訊儀表板 
+├── static/    # 靜態資源目錄 
+│   ├── css/            # 樣式檔案 
 └── crawler/            # 資料爬蟲模組
 ```
 
